@@ -1,0 +1,84 @@
+{
+  "n_sessions_per_sample": 200,
+  "n_train": 960,
+  "n_test": 240,
+  "model": {
+    "type": "RandomForestClassifier",
+    "n_estimators": 200
+  },
+  "accuracy_default_noise": 0.9666666666666667,
+  "accuracy_by_noise": {
+    "0.03": 0.9872222222222222,
+    "0.10": 0.7888888888888889,
+    "0.20": 0.535,
+    "0.30": 0.41888888888888887
+  },
+  "classes": [
+    "coffee",
+    "vanilla_candle",
+    "mint",
+    "lemon",
+    "banana",
+    "wood_smoke"
+  ],
+  "confusion_matrix": [
+    [
+      39,
+      0,
+      0,
+      0,
+      1,
+      0
+    ],
+    [
+      0,
+      39,
+      0,
+      0,
+      0,
+      1
+    ],
+    [
+      0,
+      0,
+      40,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      3,
+      37,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      40,
+      0
+    ],
+    [
+      0,
+      3,
+      0,
+      0,
+      0,
+      37
+    ]
+  ],
+  "coffee_wood_smoke_confusion": {
+    "coffee_as_wood_smoke": 0,
+    "wood_smoke_as_coffee": 0
+  },
+  "seeds": {
+    "sensor_bank": 7,
+    "data": 1,
+    "model": 1
+  },
+  "train_seconds": 0.91
+}
