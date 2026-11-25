@@ -1,4 +1,4 @@
-"""SMELL//OS — Cybercore Streamlit interface for the Smell AI pipeline."""
+"""SMELL//OS — Minimal light Y2K Streamlit interface for the Smell AI pipeline."""
 
 from __future__ import annotations
 
@@ -30,158 +30,153 @@ st.set_page_config(
 )
 
 CSS = r"""
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Share+Tech+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap');
 :root {
-  --bg: #05070d; --panel: #0a101c; --panel2: #0d1524;
-  --cyan: #00f0ff; --magenta: #ff2bd6; --lime: #a6ff00; --amber: #ffb000;
-  --text: #d7faff; --muted: #6f8fa8; --line: rgba(0,240,255,.22);
+  --bg: #f4f7fc; --panel: #ffffff; --panel2: #eef3fa;
+  --blue: #0066ff; --cyan: #00a8ff; --pink: #ff3399; --mint: #00a878; --amber: #d97706;
+  --text: #162033; --muted: #5c6f8a; --line: #d4dfee;
 }
 .stApp {
-  background-color: var(--bg);
-  background-image:
-    radial-gradient(circle at 12% 0%, rgba(255,43,214,.10), transparent 34%),
-    radial-gradient(circle at 88% 8%, rgba(0,240,255,.10), transparent 38%),
-    linear-gradient(rgba(0,240,255,.032) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,240,255,.032) 1px, transparent 1px);
-  background-size: auto, auto, 42px 42px, 42px 42px;
-  background-attachment: fixed;
+  background: linear-gradient(180deg, #f8faff 0%, #eef3fa 100%);
   color: var(--text);
-  font-family: 'Share Tech Mono', 'JetBrains Mono', Consolas, monospace;
-}
-.stApp::after {
-  content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 999999;
-  background: repeating-linear-gradient(0deg, rgba(0,0,0,.12) 0px, rgba(0,0,0,.12) 1px, transparent 1px, transparent 3px);
-  opacity: .18;
+  font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
 }
 [data-testid="stHeader"] { background: transparent; }
 [data-testid="stSidebar"] {
-  background: linear-gradient(180deg, #070c16, #05070d 70%);
+  background: #ffffff;
   border-right: 1px solid var(--line);
 }
 h1, h2, h3, h4 {
-  font-family: 'Orbitron', 'Share Tech Mono', monospace !important;
-  letter-spacing: .08em; text-transform: uppercase;
-  color: var(--cyan) !important;
-  text-shadow: 0 0 18px rgba(0,240,255,.30);
+  font-family: 'Space Grotesk', sans-serif !important;
+  letter-spacing: .04em;
+  color: var(--text) !important;
 }
 p, li, label, span, div { color: var(--text); }
-a { color: var(--magenta); }
+a { color: var(--blue); }
 code {
-  color: var(--lime); background: rgba(166,255,0,.06);
-  border: 1px solid rgba(166,255,0,.16); border-radius: 3px; padding: 1px 4px;
+  font-family: 'IBM Plex Mono', monospace;
+  color: #0052cc; background: #edf3ff;
+  border: 1px solid #d5e3ff; border-radius: 6px; padding: 1px 5px;
 }
 pre {
-  background: #02040a !important; border: 1px solid var(--line) !important;
-  box-shadow: inset 0 0 30px rgba(0,240,255,.05);
+  background: #f8faff !important; border: 1px solid var(--line) !important;
+  border-radius: 10px !important;
 }
-.stTabs [data-baseweb="tab-list"] { gap: 5px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.stTabs [data-baseweb="tab-list"] { gap: 6px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
 .stTabs [data-baseweb="tab"] {
-  background: rgba(10,16,28,.85); border: 1px solid rgba(0,240,255,.18);
-  border-radius: 3px 3px 0 0; color: var(--muted);
-  font-family: 'Share Tech Mono', monospace; letter-spacing: .08em;
-  font-size: .78rem; padding: 7px 11px;
+  background: #ffffff; border: 1px solid var(--line);
+  border-radius: 999px; color: var(--muted);
+  font-family: 'IBM Plex Mono', monospace; letter-spacing: .04em;
+  font-size: .74rem; padding: 6px 14px; margin-bottom: 6px;
 }
 .stTabs [aria-selected="true"] {
-  background: linear-gradient(180deg, rgba(0,240,255,.20), rgba(0,240,255,.04));
-  color: var(--cyan); border-color: var(--cyan);
-  box-shadow: 0 0 18px rgba(0,240,255,.25);
+  background: linear-gradient(180deg, #ffffff 0%, #e5f0ff 100%);
+  color: var(--blue); border-color: var(--blue);
+  box-shadow: 0 2px 8px rgba(0, 102, 255, .12);
 }
 .stButton > button {
-  background: linear-gradient(180deg, rgba(0,240,255,.12), rgba(0,240,255,.02));
-  color: var(--cyan); border: 1px solid var(--cyan); border-radius: 3px;
-  font-family: 'Share Tech Mono', monospace; letter-spacing: .12em;
-  text-transform: uppercase; box-shadow: 0 0 12px rgba(0,240,255,.15);
+  background: linear-gradient(180deg, #ffffff 0%, #e9f1ff 100%);
+  color: var(--blue); border: 1px solid #99c2ff; border-radius: 999px;
+  font-family: 'IBM Plex Mono', monospace; letter-spacing: .06em;
+  font-size: .78rem; text-transform: uppercase;
+  box-shadow: 0 2px 6px rgba(0, 102, 255, .08);
   transition: all .15s ease;
 }
 .stButton > button:hover {
-  background: var(--cyan); color: #02040a;
-  box-shadow: 0 0 26px rgba(0,240,255,.55); border-color: var(--cyan);
+  background: var(--blue); color: #ffffff; border-color: var(--blue);
+  box-shadow: 0 4px 12px rgba(0, 102, 255, .22);
 }
 [data-testid="stMetric"] {
-  background: linear-gradient(180deg, rgba(13,21,36,.92), rgba(7,12,22,.92));
-  border: 1px solid var(--line); border-left: 3px solid var(--cyan);
-  border-radius: 4px; padding: 10px 13px;
-  box-shadow: 0 0 20px rgba(0,240,255,.06);
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 12px; padding: 12px 14px;
+  box-shadow: 0 2px 10px rgba(22, 32, 51, .03);
 }
 [data-testid="stMetricLabel"] {
   color: var(--muted) !important; text-transform: uppercase;
-  letter-spacing: .12em; font-size: .68rem;
+  font-family: 'IBM Plex Mono', monospace;
+  letter-spacing: .08em; font-size: .68rem;
 }
 [data-testid="stMetricValue"] {
-  color: var(--cyan) !important; font-family: 'Orbitron', monospace;
-  text-shadow: 0 0 14px rgba(0,240,255,.35);
+  color: var(--blue) !important; font-family: 'Space Grotesk', sans-serif;
 }
 [data-testid="stDataFrame"], [data-testid="stTable"] {
-  border: 1px solid var(--line); border-radius: 4px;
+  border: 1px solid var(--line); border-radius: 10px; background: #ffffff;
 }
 [data-testid="stExpander"] {
-  background: rgba(10,16,28,.65); border: 1px solid var(--line); border-radius: 4px;
+  background: #ffffff; border: 1px solid var(--line); border-radius: 12px;
 }
 [data-baseweb="input"] > div, [data-baseweb="select"] > div, [data-baseweb="base-input"] {
-  background: #070c16 !important; border-color: rgba(0,240,255,.25) !important;
+  background: #ffffff !important; border-color: var(--line) !important; border-radius: 8px !important;
 }
 .stSlider [data-baseweb="slider"] div[role="slider"] {
-  background: var(--cyan); box-shadow: 0 0 12px var(--cyan);
+  background: var(--blue); box-shadow: 0 0 0 3px rgba(0, 102, 255, .15);
 }
-.stProgress > div > div > div > div { background: linear-gradient(90deg, var(--cyan), var(--magenta)); }
-.stAlert { background: rgba(255,43,214,.07); border: 1px solid rgba(255,43,214,.35); }
+.stProgress > div > div > div > div {
+  background: linear-gradient(90deg, var(--blue), var(--cyan));
+}
+.stAlert { background: #fff5fa; border: 1px solid #ffcce6; border-radius: 10px; }
 hr { border-color: var(--line); }
 #MainMenu, footer { visibility: hidden; }
 [data-testid="stDecoration"] { display: none; }
 .hero {
-  border: 1px solid var(--line); padding: 24px 28px; margin-bottom: 18px;
-  background: linear-gradient(135deg, rgba(0,240,255,.08), rgba(255,43,214,.06));
-  position: relative; overflow: hidden;
-  box-shadow: inset 0 0 60px rgba(0,240,255,.04), 0 0 30px rgba(0,0,0,.5);
+  border: 1px solid var(--line); border-radius: 16px;
+  padding: 20px 24px; margin-bottom: 16px;
+  background: linear-gradient(135deg, #ffffff 0%, #eef5ff 60%, #fdf2f8 100%);
+  box-shadow: 0 4px 20px rgba(22, 32, 51, .04);
 }
-.hero::before {
-  content: ""; position: absolute; left: 0; right: 0; height: 2px;
-  background: linear-gradient(90deg, transparent, var(--cyan), var(--magenta), transparent);
-  animation: scan 5s linear infinite; opacity: .7;
+.hero-kicker {
+  font-family: 'IBM Plex Mono', monospace; color: var(--muted);
+  font-size: .70rem; letter-spacing: .16em;
 }
-@keyframes scan { 0% { top: 0; } 100% { top: 100%; } }
-.hero-kicker { color: var(--lime); font-size: .72rem; letter-spacing: .30em; }
 .hero-title {
-  font-family: 'Orbitron', monospace; font-size: clamp(2.2rem, 5vw, 4.2rem);
-  font-weight: 900; letter-spacing: .10em; line-height: 1.05;
-  color: var(--cyan); text-shadow: 0 0 24px rgba(0,240,255,.55), 0 0 60px rgba(0,240,255,.18);
-  margin: 6px 0;
+  font-family: 'Space Grotesk', sans-serif; font-size: clamp(1.8rem, 4vw, 2.8rem);
+  font-weight: 700; letter-spacing: .04em; line-height: 1.1;
+  color: var(--text); margin: 4px 0;
 }
-.hero-title span { color: var(--magenta); text-shadow: 0 0 24px rgba(255,43,214,.65); }
-.hero-sub { color: var(--muted); font-size: .76rem; letter-spacing: .16em; margin-bottom: 12px; }
+.hero-title span { color: var(--blue); }
+.hero-sub {
+  font-family: 'IBM Plex Mono', monospace; color: var(--muted);
+  font-size: .74rem; letter-spacing: .08em; margin-bottom: 10px;
+}
 .badge {
-  display: inline-block; padding: 3px 8px; margin: 2px 6px 2px 0;
-  border: 1px solid var(--cyan); color: var(--cyan);
-  background: rgba(0,240,255,.06); font-size: .64rem; letter-spacing: .12em;
+  display: inline-block; padding: 3px 10px; margin: 2px 6px 2px 0;
+  border-radius: 999px; border: 1px solid #b8d4ff; color: var(--blue);
+  background: #f0f6ff; font-family: 'IBM Plex Mono', monospace;
+  font-size: .64rem; letter-spacing: .08em;
 }
-.badge-magenta { border-color: var(--magenta); color: var(--magenta); background: rgba(255,43,214,.06); }
-.badge-lime { border-color: var(--lime); color: var(--lime); background: rgba(166,255,0,.06); }
-.badge-amber { border-color: var(--amber); color: var(--amber); background: rgba(255,176,0,.06); }
+.badge-magenta { border-color: #ffb8dc; color: var(--pink); background: #fff0f8; }
+.badge-lime { border-color: #a7e8d2; color: var(--mint); background: #edfcf6; }
+.badge-amber { border-color: #fcd34d; color: var(--amber); background: #fffbeb; }
 .section-tag {
-  color: var(--magenta); font-size: .70rem; letter-spacing: .26em;
-  text-transform: uppercase; margin: 16px 0 4px;
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--blue); font-size: .72rem; letter-spacing: .14em;
+  text-transform: uppercase; margin: 12px 0 6px;
 }
 .terminal {
-  background: #02040a; border: 1px solid var(--line); padding: 14px 16px;
-  color: var(--lime); font-family: 'Share Tech Mono', monospace; font-size: .85rem;
-  box-shadow: inset 0 0 30px rgba(0,240,255,.05);
+  background: #ffffff; border: 1px solid var(--line); border-radius: 10px;
+  padding: 12px 14px; color: var(--text);
+  font-family: 'IBM Plex Mono', monospace; font-size: .82rem;
 }
-.terminal .prompt { color: var(--cyan); }
+.terminal .prompt { color: var(--blue); font-weight: 500; }
 .cursor {
-  display: inline-block; width: 8px; height: 14px; background: var(--cyan);
+  display: inline-block; width: 7px; height: 13px; background: var(--blue);
   animation: blink 1s steps(2) infinite; vertical-align: middle;
 }
 @keyframes blink { 0%,49% { opacity: 1; } 50%,100% { opacity: 0; } }
 .sidebar-brand {
-  font-family: 'Orbitron', monospace; font-size: 1.5rem; font-weight: 900;
-  color: var(--cyan); letter-spacing: .12em;
-  text-shadow: 0 0 18px rgba(0,240,255,.45);
+  font-family: 'Space Grotesk', sans-serif; font-size: 1.4rem; font-weight: 700;
+  color: var(--text); letter-spacing: .04em;
 }
-.sidebar-brand span { color: var(--magenta); }
-.sidebar-sub { color: var(--muted); font-size: .62rem; letter-spacing: .18em; }
+.sidebar-brand span { color: var(--blue); }
+.sidebar-sub {
+  font-family: 'IBM Plex Mono', monospace; color: var(--muted);
+  font-size: .64rem; letter-spacing: .12em;
+}
 .footer {
-  border-top: 1px solid var(--line); margin-top: 26px; padding-top: 12px;
-  color: var(--muted); font-size: .70rem; letter-spacing: .08em;
+  border-top: 1px solid var(--line); margin-top: 24px; padding-top: 12px;
+  color: var(--muted); font-family: 'IBM Plex Mono', monospace;
+  font-size: .70rem; letter-spacing: .04em;
 }
 """
 
@@ -234,8 +229,10 @@ def _heatmap(matrix: pd.DataFrame):
     vmax = max(int(matrix.values.max()), 1)
 
     def color(value: float) -> str:
-        intensity = 0.08 + 0.72 * (float(value) / vmax)
-        return f"background-color: rgba(0,240,255,{intensity:.2f}); color: #d7faff;"
+        ratio = float(value) / vmax
+        intensity = 0.06 + 0.65 * ratio
+        ink = "#ffffff" if ratio > 0.6 else "#162033"
+        return f"background-color: rgba(0,102,255,{intensity:.2f}); color: {ink};"
 
     styler = matrix.style
     if hasattr(styler, "map"):
