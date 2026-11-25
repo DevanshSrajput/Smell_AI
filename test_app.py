@@ -4,14 +4,12 @@ from __future__ import annotations
 
 import json
 import sys
-from pathlib import Path
 
 import numpy as np
 from rdkit import Chem
 
 import pipeline
 
-ROOT = Path(__file__).resolve().parent
 N_SNIFFS = 20
 MIN_SAMPLE_ACCURACY = 0.95
 EXPECTED = {
@@ -54,7 +52,9 @@ def check_smiles(ctx: pipeline.Context) -> int:
         for failure in failures:
             print(f"  unparsable {failure}")
         return 1
-    print(f"[2/7] sample SMILES: PASS ({len(ctx.samples)} samples, {n_molecules} molecules)")
+    print(
+        f"[2/7] sample SMILES: PASS ({len(ctx.samples)} samples, {n_molecules} molecules)"
+    )
     return 0
 
 
@@ -101,7 +101,9 @@ def check_nose_accuracy(ctx: pipeline.Context) -> int:
     for i, sample_id in enumerate(classes):
         correct = 0
         for j in range(N_SNIFFS):
-            result = pipeline.sniff(ctx, sample_id, noise=0.03, humidity=0.5, seed=1000 + i * 100 + j)
+            result = pipeline.sniff(
+                ctx, sample_id, noise=0.03, humidity=0.5, seed=1000 + i * 100 + j
+            )
             predicted = result["nose"]["predicted"]
             confusion[i, classes.index(predicted)] += 1
             correct += predicted == sample_id
@@ -111,17 +113,23 @@ def check_nose_accuracy(ctx: pipeline.Context) -> int:
     print(f"[4/7] nose accuracy over {N_SNIFFS} sniffs per sample (noise 0.03)")
     print(f"  {'sample':15s} {'correct':>8s} {'accuracy':>9s}  result")
     for sample_id, correct, accuracy, passed in rows:
-        print(f"  {sample_id:15s} {correct:>4d}/{N_SNIFFS:<3d} {accuracy:>8.0%}  {'PASS' if passed else 'FAIL'}")
+        print(
+            f"  {sample_id:15s} {correct:>4d}/{N_SNIFFS:<3d} "
+            f"{accuracy:>8.0%}  {'PASS' if passed else 'FAIL'}"
+        )
     n_passing = sum(1 for _, _, _, passed in rows if passed)
     overall = sum(correct for _, correct, _, _ in rows) / (N_SNIFFS * len(classes))
-    print(f"  overall {overall:.1%}; {n_passing}/6 samples at or above 95%")
+    print(
+        f"  overall {overall:.1%}; {n_passing}/{len(classes)} samples at or above 95%"
+    )
     if n_passing < 5 or overall < MIN_SAMPLE_ACCURACY:
         print("  confusion matrix (rows=true, cols=pred):")
         print(f"  {'':15s} " + " ".join(f"{c[:6]:>6s}" for c in classes))
         for sample_id, row in zip(classes, confusion):
             print(f"  {sample_id:15s} " + " ".join(f"{value:>6d}" for value in row))
         return _fail(
-            f"nose accuracy below target ({n_passing}/6 samples, overall {overall:.1%})"
+            f"nose accuracy below target "
+            f"({n_passing}/{len(classes)} samples, overall {overall:.1%})"
         )
     return 0
 
