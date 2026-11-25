@@ -1058,8 +1058,8 @@ def _render_doc(path: Path) -> None:
 def _documentation() -> None:
     _section("08 // DOCUMENTATION")
     st.write(
-        "Every documentation tab is rendered from the repository markdown, so the app "
-        "and the written specs cannot drift apart silently."
+        "Most documentation tabs render the repository markdown, so the app and the "
+        "written specs cannot drift apart silently. API and Honesty are maintained inline."
     )
     docs = {
         "GUIDE": DOCS_DIR / "WEB_APP.md",

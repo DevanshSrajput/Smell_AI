@@ -56,7 +56,7 @@ Python 3.10–3.12, CPU only. `requirements.txt` is deliberately small: RDKit, s
 | **Model Metrics** | Measured smell AUC, per-descriptor AUC, nose confusion matrix, noise curve, and seeds. |
 | **Sample Library** | The six compositions, molecule properties, weights, and descriptor profiles. |
 | **Sniff Log** | The last 500 sniffs from `logs/sniffs.jsonl`, filterable and downloadable. |
-| **Documentation** | Ten documentation tabs rendered from `README.md` and `docs/`. |
+| **Documentation** | Ten documentation tabs for the guide, specs, deployment, API, and honesty; most render `README.md` and `docs/`. |
 
 Global controls live in the sidebar: sample, noise, humidity, and seed. A fixed seed reproduces a sniff; a blank seed gives a fresh reading. Batch and sweep runs do not write to the sniff log.
 

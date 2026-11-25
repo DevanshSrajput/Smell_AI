@@ -78,7 +78,7 @@ The log is runtime state. It is gitignored and does not exist until the first sn
 
 ## 9. Documentation
 
-Every documentation tab is rendered from the repository markdown:
+Most documentation tabs are rendered from the repository markdown; **API** and **HONESTY** are maintained inline in `app.py`:
 
 - **GUIDE** — this file;
 - **QUICKSTART** — `README.md`;
