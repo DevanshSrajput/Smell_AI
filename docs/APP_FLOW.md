@@ -1,5 +1,7 @@
 # App Flow: Smell AI
 
+> **v2 note:** `app.py` now implements the Sniff Lab flow below as one tab inside a Cybercore eight-tab console. Batch Arena, Molecule Lab, Sensor Sweep, Model Metrics, Sample Library, Sniff Log, and the documentation tabs are documented in [`WEB_APP.md`](WEB_APP.md). The row layout in this file still describes the primary Sniff Lab tab.
+
 ## 1. First-run flow (terminal)
 
 ```
