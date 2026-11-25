@@ -8,10 +8,10 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "src"))
 
-import numpy as np
-from rdkit import Chem
+import numpy as np  # noqa: E402
+from rdkit import Chem  # noqa: E402
 
-import pipeline
+import pipeline  # noqa: E402
 
 N_SNIFFS = 20
 MIN_SAMPLE_ACCURACY = 0.95
