@@ -47,6 +47,8 @@ class Context:
     descriptors: list[str]
     base_rate: np.ndarray
     mol_probs: dict[str, np.ndarray]
+    gnn_model: Any = None
+    gnn_mol_probs: dict[str, np.ndarray] | None = None
 
 
 def missing_model_files() -> list[str]:
@@ -116,6 +118,21 @@ def load_all() -> Context:
         )
         for sample_id, sample in samples.items()
     }
+    gnn_model, gnn_mol_probs = None, None
+    if (MODELS_DIR / "smell_gnn.pt").exists():
+        try:
+            import train_gnn
+
+            gnn_model, _ = train_gnn.load_gnn()
+            gnn_mol_probs = {
+                sample_id: train_gnn.predict_proba(
+                    gnn_model, [m["smiles"] for m in sample.molecules]
+                )
+                for sample_id, sample in samples.items()
+            }
+        except Exception:
+            gnn_model, gnn_mol_probs = None, None
+
     return Context(
         samples=samples,
         bank=bank,
@@ -125,13 +142,22 @@ def load_all() -> Context:
         descriptors=descriptors,
         base_rate=base_rate,
         mol_probs=mol_probs,
+        gnn_model=gnn_model,
+        gnn_mol_probs=gnn_mol_probs,
     )
 
 
-def describe(ctx: Context, sample_id: str, top_k: int = 5) -> list[dict]:
+def describe(
+    ctx: Context, sample_id: str, top_k: int = 5, backend: str = "rf"
+) -> list[dict]:
     """Rank descriptors by score * sqrt(lift) over the sample's molecule mix."""
     sample = ctx.samples[sample_id]
-    scores = sample.weights @ ctx.mol_probs[sample_id]
+    probs_map = (
+        ctx.gnn_mol_probs
+        if backend == "gnn" and ctx.gnn_mol_probs is not None
+        else ctx.mol_probs
+    )
+    scores = sample.weights @ probs_map[sample_id]
     lift = scores / np.maximum(ctx.base_rate, 0.005)
     order = np.argsort(-(scores * np.sqrt(lift)))[:top_k]
     return [
@@ -144,12 +170,19 @@ def describe(ctx: Context, sample_id: str, top_k: int = 5) -> list[dict]:
     ]
 
 
-def molecule_descriptors(ctx: Context, smiles: str, top_k: int = 8) -> list[dict]:
+def molecule_descriptors(
+    ctx: Context, smiles: str, top_k: int = 8, backend: str = "rf"
+) -> list[dict]:
     """Top descriptors for one molecule; raises ValueError on invalid SMILES."""
     if not smiles.strip():
         raise ValueError("Could not parse that SMILES.")
     try:
-        scores = smell_model.predict_proba(ctx.smell_model, [smiles])[0]
+        if backend == "gnn" and ctx.gnn_model is not None:
+            import train_gnn
+
+            scores = train_gnn.predict_proba(ctx.gnn_model, [smiles])[0]
+        else:
+            scores = smell_model.predict_proba(ctx.smell_model, [smiles])[0]
     except ValueError as exc:
         raise ValueError("Could not parse that SMILES.") from exc
     lift = scores / np.maximum(ctx.base_rate, 0.005)
@@ -178,6 +211,7 @@ def sniff(
     humidity: float = 0.5,
     seed: int | None = None,
     log: bool = True,
+    backend: str = "rf",
 ) -> dict:
     """Run one simulated sniff; optionally append it to logs/sniffs.jsonl."""
     if sample_name not in ctx.samples:
@@ -204,8 +238,9 @@ def sniff(
             },
             "correct": predicted == sample_name,
         },
-        "description": describe(ctx, predicted, top_k=5),
+        "description": describe(ctx, predicted, top_k=5, backend=backend),
         "molecules": ctx.samples[predicted].molecules,
+        "smell_backend": "gnn" if (backend == "gnn" and ctx.gnn_mol_probs is not None) else "rf",
     }
     if log:
         _log(result)

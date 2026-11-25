@@ -1,0 +1,2 @@
+# Optional GPU/GNN training dependency (install PyTorch CUDA for your GPU, e.g. cu126)
+torch>=2.5

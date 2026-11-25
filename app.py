@@ -191,7 +191,7 @@ def _load_context() -> pipeline.Context:
 @st.cache_data
 def _load_metrics() -> dict:
     metrics = {}
-    for name in ("smell_metrics", "nose_metrics"):
+    for name in ("smell_metrics", "nose_metrics", "gnn_metrics"):
         path = MODELS_DIR / f"{name}.json"
         if path.exists():
             metrics[name] = json.loads(path.read_text(encoding="utf-8"))
@@ -249,7 +249,7 @@ def _table(data, **kwargs):
         st.dataframe(data, use_container_width=True, **kwargs)
 
 
-def _hero(loaded: bool = True) -> None:
+def _hero(loaded: bool = True, backend: str = "rf") -> None:
     model_badge = (
         '<span class="badge badge-lime">MODELS: LOADED</span>'
         if loaded
@@ -260,6 +260,11 @@ def _hero(loaded: bool = True) -> None:
         if loaded
         else '<span class="badge badge-amber">● SYSTEM BOOT</span>'
     )
+    arch_badge = (
+        '<span class="badge">SMELL: OPENPOM MPNN (GNN)</span>'
+        if backend == "gnn"
+        else '<span class="badge">SMELL: RANDOM FOREST (CPU)</span>'
+    )
     st.markdown(
         f"""
         <div class="hero">
@@ -268,6 +273,7 @@ def _hero(loaded: bool = True) -> None:
           <div class="hero-sub">138-DIMENSIONAL MOLECULE OLFACTION · 8-CHANNEL SIMULATED NOSE</div>
           <div class="hero-status">
             {system_badge}
+            {arch_badge}
             <span class="badge badge-magenta">NOSE: SIMULATED</span>
             {model_badge}
           </div>
@@ -339,12 +345,21 @@ def _bootstrap_screen() -> None:
     )
 
 
-def _sidebar(ctx: pipeline.Context, metrics: dict) -> tuple[str, float, float, int | None]:
+def _sidebar(ctx: pipeline.Context, metrics: dict) -> tuple[str, float, float, int | None, str]:
     with st.sidebar:
         st.markdown('<div class="sidebar-brand">SMELL<span>//</span>OS</div>', unsafe_allow_html=True)
         st.markdown('<div class="sidebar-sub">OLFACTORY INFERENCE CONSOLE</div>', unsafe_allow_html=True)
         st.divider()
         st.markdown("#### // SESSION CONTROL")
+        backend = "rf"
+        if ctx.gnn_model is not None:
+            choice = st.radio(
+                "Smell Model",
+                ["OpenPOM MPNN (GNN)", "RandomForest (CPU)"],
+                index=0,
+                key="ctl_backend",
+            )
+            backend = "gnn" if "MPNN" in choice else "rf"
         picked = st.selectbox(
             "Sample",
             list(ctx.samples),
@@ -366,16 +381,18 @@ def _sidebar(ctx: pipeline.Context, metrics: dict) -> tuple[str, float, float, i
         st.markdown("#### // SYSTEM STATUS")
 
         smell = metrics.get("smell_metrics", {})
+        gnn = metrics.get("gnn_metrics", {})
         nose = metrics.get("nose_metrics", {})
+        active_auc = gnn.get("random_split_macro_roc_auc", 0.0) if backend == "gnn" else smell.get("macro_roc_auc", 0.0)
         left, right = st.columns(2)
-        left.metric("SMELL AUC", f"{smell.get('macro_roc_auc', 0.0):.3f}")
+        left.metric("GNN AUC" if backend == "gnn" else "RF AUC", f"{active_auc:.3f}")
         right.metric("NOSE ACC", f"{nose.get('accuracy_default_noise', 0.0):.1%}")
         st.caption("Measured JSON metrics. NOSE: SIMULATED.")
 
         with st.expander("SYSTEM"):
             st.write(f"Python `{platform.python_version()}`")
             ready = len(pipeline.REQUIRED_FILES) - len(pipeline.missing_model_files())
-            st.write(f"Models `{ready}/{len(pipeline.REQUIRED_FILES)}`")
+            st.write(f"Models `{ready}/{len(pipeline.REQUIRED_FILES)}` (GNN: `{'ready' if ctx.gnn_model else 'absent'}`)")
             st.write(f"Log lines `{_log_count()}`")
             st.write(f"Sensor seed `{ctx.bank.seed}`")
             if st.button("RESET SESSION", key="reset_btn"):
@@ -389,21 +406,21 @@ def _sidebar(ctx: pipeline.Context, metrics: dict) -> tuple[str, float, float, i
                     st.session_state.pop(key, None)
                 st.rerun()
         st.caption("SIMULATED NOSE — NOT HARDWARE")
-    return picked, noise, humidity, seed
+    return picked, noise, humidity, seed, backend
 
 
 def _sniff_lab(
-    ctx: pipeline.Context, picked: str, noise: float, humidity: float, seed: int | None
+    ctx: pipeline.Context, picked: str, noise: float, humidity: float, seed: int | None, backend: str = "rf"
 ) -> None:
     _section("01 // SINGLE SNIFF")
     st.write(
         "Pick a smell, set the environment, and initiate a sniff. The nose reads eight "
-        "simulated channels; the smell model describes the molecules behind its guess."
+        "simulated channels; the selected smell model describes the molecules behind its guess."
     )
     if st.button("INITIATE SNIFF", type="primary", key="sniff_btn"):
         try:
             st.session_state["last_sniff"] = pipeline.sniff(
-                ctx, picked, noise=noise, humidity=humidity, seed=seed
+                ctx, picked, noise=noise, humidity=humidity, seed=seed, backend=backend
             )
         except Exception as exc:
             st.exception(exc)
@@ -417,9 +434,10 @@ def _sniff_lab(
     predicted_label = ctx.samples[result["nose"]["predicted"]].label
     confidence = result["nose"]["confidence"]
     seed_label = "fresh" if result["conditions"]["seed"] is None else result["conditions"]["seed"]
+    used_backend = "OpenPOM MPNN (GNN)" if result.get("smell_backend") == "gnn" else "RandomForest (CPU)"
     st.caption(
         f"noise σ={result['conditions']['noise']:.2f} · "
-        f"humidity={result['conditions']['humidity']:.2f} · seed={seed_label}"
+        f"humidity={result['conditions']['humidity']:.2f} · seed={seed_label} · smell={used_backend}"
     )
 
     c1, c2, c3, c4 = st.columns(4)
@@ -571,16 +589,21 @@ def _batch_arena(ctx: pipeline.Context, noise: float, humidity: float) -> None:
     )
 
 
-def _molecule_lab(ctx: pipeline.Context) -> None:
+def _molecule_lab(ctx: pipeline.Context, backend: str = "rf") -> None:
     _section("03 // MOLECULE LAB")
     st.write(
-        "Analyze one SMILES with the molecule model, inspect the eight simulator "
-        "properties, and see which sample the nose thinks it resembles."
+        "Analyze one SMILES with the smell model, inspect the eight simulator "
+        "properties, and compare RandomForest vs. OpenPOM MPNN predictions."
     )
     smiles = st.text_input("SMILES", value="CC(C)C1CCC(C)CC1O", key="mol_smiles")
     if st.button("ANALYZE MOLECULE", type="primary", key="mol_run"):
         try:
-            descriptors = pipeline.molecule_descriptors(ctx, smiles, top_k=12)
+            descriptors_rf = pipeline.molecule_descriptors(ctx, smiles, top_k=12, backend="rf")
+            descriptors_gnn = (
+                pipeline.molecule_descriptors(ctx, smiles, top_k=12, backend="gnn")
+                if ctx.gnn_model is not None
+                else None
+            )
             features = sensor.molecule_features(smiles)
             reading = sensor.simulate(
                 [{"smiles": smiles, "weight": 1.0}],
@@ -591,7 +614,9 @@ def _molecule_lab(ctx: pipeline.Context) -> None:
             probabilities = ctx.nose.predict_proba(reading.reshape(1, -1))[0]
             st.session_state["molecule_result"] = {
                 "smiles": smiles,
-                "descriptors": descriptors,
+                "descriptors": descriptors_gnn if (backend == "gnn" and descriptors_gnn) else descriptors_rf,
+                "descriptors_rf": descriptors_rf,
+                "descriptors_gnn": descriptors_gnn,
                 "features": [float(value) for value in features],
                 "reading": [float(value) for value in reading],
                 "probabilities": {
@@ -609,11 +634,14 @@ def _molecule_lab(ctx: pipeline.Context) -> None:
         return
 
     st.caption(f"Analyzed `{result['smiles']}`")
-    left, right = st.columns([1, 1])
-    with left:
-        st.subheader("Descriptor profile")
-        _description_bars(result["descriptors"])
-    with right:
+    if result.get("descriptors_gnn"):
+        c_gnn, c_rf = st.columns([1, 1])
+        with c_gnn:
+            st.subheader("OpenPOM MPNN (GNN)")
+            _description_bars(result["descriptors_gnn"][:8])
+        with c_rf:
+            st.subheader("RandomForest (CPU)")
+            _description_bars(result["descriptors_rf"][:8])
         st.subheader("Sensor properties")
         features = np.asarray(result["features"])
         feature_df = pd.DataFrame(
@@ -624,6 +652,22 @@ def _molecule_lab(ctx: pipeline.Context) -> None:
             }
         )
         _table(feature_df, hide_index=True, width="stretch")
+    else:
+        left, right = st.columns([1, 1])
+        with left:
+            st.subheader("Descriptor profile")
+            _description_bars(result["descriptors"])
+        with right:
+            st.subheader("Sensor properties")
+            features = np.asarray(result["features"])
+            feature_df = pd.DataFrame(
+                {
+                    "feature": sensor.FEATURE_NAMES,
+                    "value": features,
+                    "z-score": (features - ctx.bank.feature_mean) / ctx.bank.feature_std,
+                }
+            )
+            _table(feature_df, hide_index=True, width="stretch")
 
     st.subheader("Nose resemblance")
     prob_df = pd.DataFrame(
@@ -731,18 +775,66 @@ def _model_metrics(metrics: dict) -> None:
     _section("05 // MODEL METRICS")
     smell = metrics.get("smell_metrics")
     nose = metrics.get("nose_metrics")
+    gnn = metrics.get("gnn_metrics")
     if not smell or not nose:
         st.info("Metrics JSON not found. Run the training commands.")
         return
 
     c1, c2, c3, c4 = st.columns(4)
-    c1.metric("SMELL MACRO AUC", f"{smell['macro_roc_auc']:.3f}")
-    c2.metric("DESCRIPTORS SCORED", f"{smell['n_descriptors_scored']}/{smell['n_descriptors']}")
+    c1.metric("RF MACRO AUC", f"{smell['macro_roc_auc']:.3f}")
+    if gnn:
+        c2.metric(
+            "GNN MACRO AUC",
+            f"{gnn['random_split_macro_roc_auc']:.3f}",
+            delta=f"+{gnn['random_split_macro_roc_auc'] - smell['macro_roc_auc']:.3f} vs RF",
+        )
+    else:
+        c2.metric("DESCRIPTORS SCORED", f"{smell['n_descriptors_scored']}/{smell['n_descriptors']}")
     c3.metric("NOSE ACCURACY", f"{nose['accuracy_default_noise']:.1%}")
     c4.metric("HELD-OUT SESSIONS", f"{nose['n_test']}")
     st.caption("All values are read from models/*.json; nothing is hardcoded.")
 
-    tab_smell, tab_nose = st.tabs(["SMELL MODEL", "NOSE MODEL"])
+    tab_names = ["RF vs. GNN BENCHMARK", "SMELL MODEL (RF)", "NOSE MODEL"] if gnn else ["SMELL MODEL", "NOSE MODEL"]
+    model_tabs = st.tabs(tab_names)
+    if gnn:
+        tab_bench, tab_smell, tab_nose = model_tabs
+        with tab_bench:
+            b1, b2, b3 = st.columns(3)
+            b1.metric("GNN Random Split AUC", f"{gnn['random_split_macro_roc_auc']:.4f}")
+            b2.metric(
+                "GNN Scaffold Split AUC",
+                f"{gnn['scaffold_split_macro_roc_auc']:.4f}",
+                delta=f"+{gnn['scaffold_split_macro_roc_auc'] - gnn['rf_scaffold_split_macro_roc_auc']:.4f} vs RF",
+            )
+            b3.metric("RF Scaffold Split AUC", f"{gnn['rf_scaffold_split_macro_roc_auc']:.4f}")
+
+            comp = pd.DataFrame(
+                [
+                    {
+                        "Model": "RandomForest (CPU Baseline)",
+                        "Input": "2048-bit Morgan Count FP",
+                        "Hardware": "Laptop CPU",
+                        "Random 80/20 AUC": round(smell["macro_roc_auc"], 4),
+                        "Scaffold 80/20 AUC": round(gnn["rf_scaffold_split_macro_roc_auc"], 4),
+                        "Train Time (s)": smell["train_seconds"],
+                    },
+                    {
+                        "Model": "OpenPOM MPNN (GNN)",
+                        "Input": "Atom/Bond Graph (3-step MPNN)",
+                        "Hardware": gnn.get("device", "GPU"),
+                        "Random 80/20 AUC": round(gnn["random_split_macro_roc_auc"], 4),
+                        "Scaffold 80/20 AUC": round(gnn["scaffold_split_macro_roc_auc"], 4),
+                        "Train Time (s)": gnn["train_seconds"],
+                    },
+                ]
+            )
+            _table(comp, hide_index=True, width="stretch")
+            if gnn.get("history"):
+                hist_df = pd.DataFrame(gnn["history"]).set_index("epoch")
+                st.subheader("GNN training curve (Random 80/20)")
+                st.line_chart(hist_df[["val_auc", "loss"]], height=240)
+    else:
+        tab_smell, tab_nose = model_tabs
     with tab_smell:
         left, right = st.columns(2)
         left.write(f"**Featurizer** `{smell['featurizer']}`")
@@ -1086,10 +1178,10 @@ def main() -> None:
         _bootstrap_screen()
         st.stop()
 
-    _hero()
     metrics = _load_metrics()
     ctx = _load_context()
-    picked, noise, humidity, seed = _sidebar(ctx, metrics)
+    picked, noise, humidity, seed, backend = _sidebar(ctx, metrics)
+    _hero(loaded=True, backend=backend)
 
     tabs = st.tabs(
         [
@@ -1104,11 +1196,11 @@ def main() -> None:
         ]
     )
     with tabs[0]:
-        _sniff_lab(ctx, picked, noise, humidity, seed)
+        _sniff_lab(ctx, picked, noise, humidity, seed, backend)
     with tabs[1]:
         _batch_arena(ctx, noise, humidity)
     with tabs[2]:
-        _molecule_lab(ctx)
+        _molecule_lab(ctx, backend)
     with tabs[3]:
         _sensor_sweep(ctx, noise, humidity)
     with tabs[4]:

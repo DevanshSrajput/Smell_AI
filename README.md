@@ -107,15 +107,17 @@ The nose is a 200-tree RandomForest on the raw 8-vector. Training data: 200 sess
 
 ## Measured results
 
-These numbers come from the committed JSON metrics files (`models/smell_metrics.json`, `models/nose_metrics.json`).
+These numbers come from the committed JSON metrics files (`models/smell_metrics.json`, `models/gnn_metrics.json`, `models/nose_metrics.json`).
 
 | Metric | Measured | Target |
 |---|---:|---:|
-| Smell model macro ROC-AUC (held-out) | **0.832** | ≥ 0.78 |
+| Smell model (RandomForest, Random 80/20) macro ROC-AUC | **0.832** | ≥ 0.78 |
+| Smell model (OpenPOM MPNN GNN, Random 80/20) macro ROC-AUC | **0.874** | ≥ 0.78 |
+| Smell model (Bemis-Murcko Scaffold 80/20): GNN vs. RF | **0.773** vs. 0.730 | — |
 | Descriptors scored | 138 of 138 | 138 |
 | Nose held-out accuracy (240 sessions) | **96.7%** (232/240) | ≥ 95% |
 | `sniff()` latency (local, 50 sniffs) | **~30 ms** mean, 44 ms max | < 300 ms |
-| Smell model fit (`train_seconds`) | 35.2 s | < 3 min |
+| Smell model fit (`train_seconds`, CPU RF / RTX 3050 GNN) | 35.2 s / 87.6 s | — |
 | Nose train (`train_seconds`) | 0.9 s | < 60 s |
 
 Nose accuracy by fixed noise σ (300 fresh sessions per sample per level):
@@ -222,9 +224,9 @@ The simulator can be replaced without touching the rest of the pipeline:
 
 The simulator's noise curve is a reminder that real sensors drift and respond to humidity; a real deployment needs calibration and much more data.
 
-## Upgrade path: OpenPOM's GNN (Part 4)
+## Upgrade path: OpenPOM MPNN (GNN)
 
-OpenPOM's message-passing neural network reports a higher ROC-AUC in its authors' tests (about 0.89) but needs PyTorch, DeepChem, and ideally a GPU. This project intentionally does not install those. The upgrade path is to keep the same `predict_proba(model, smiles) -> (n, 138)` signature and swap the implementation; `pipeline.py`, `app.py`, and the tests would not change.
+`train_gnn.py` trains an edge-conditioned Message Passing Neural Network (MPNN) with attentive pooling on atom/bond graphs using PyTorch CUDA (measured on an NVIDIA RTX 3050 6GB Laptop GPU: **0.8736** macro ROC-AUC on the random 80/20 split and **0.7731** on the Bemis-Murcko scaffold split, compared to `0.8317` and `0.7299` for the CPU RandomForest baseline). When `models/smell_gnn.pt` is present, `pipeline.py` and `app.py` let you switch between the two models in the sidebar and compare them side-by-side in Molecule Lab and Model Metrics.
 
 ## Data, documentation, and credit
 
