@@ -1153,6 +1153,8 @@ def _documentation() -> None:
     docs = {
         "GUIDE": DOCS_DIR / "WEB_APP.md",
         "QUICKSTART": ROOT / "README.md",
+        "EVALUATIONS": ROOT / "eval.md",
+        "SKETCH": ROOT / "PROJECT_SKETCH.md",
         "ARCHITECTURE": DOCS_DIR / "TRD.md",
         "ALGORITHMS": DOCS_DIR / "ALGORITHMS.md",
         "SCHEMAS": DOCS_DIR / "BACKEND_SCHEMA.md",

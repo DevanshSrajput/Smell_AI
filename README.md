@@ -17,10 +17,16 @@ Windows (PowerShell):
 uv venv .venv --python 3.12 --seed
 .venv\Scripts\pip.exe install -r requirements.txt
 
-.venv\Scripts\python.exe smell_model.py   # downloads OpenPOM CSV, trains, prints macro ROC-AUC
-.venv\Scripts\python.exe train_nose.py    # trains the nose, prints accuracy and confusion matrix
+.venv\Scripts\python.exe smell_model.py   # downloads OpenPOM CSV, trains CPU RF baseline
+.venv\Scripts\python.exe train_nose.py    # trains the simulated nose, saves metrics
 .venv\Scripts\python.exe test_app.py      # 7-check headless suite, exits 0
 .venv\Scripts\python.exe -m streamlit run app.py
+```
+
+Optional GPU GNN training (requires PyTorch CUDA, e.g. `requirements-gpu.txt`):
+
+```powershell
+.venv\Scripts\python.exe train_gnn.py     # trains OpenPOM MPNN on CUDA + scaffold split
 ```
 
 macOS / Linux:
@@ -107,18 +113,19 @@ The nose is a 200-tree RandomForest on the raw 8-vector. Training data: 200 sess
 
 ## Measured results
 
-These numbers come from the committed JSON metrics files (`models/smell_metrics.json`, `models/gnn_metrics.json`, `models/nose_metrics.json`).
+All numbers below come from the committed metrics JSON files (`models/smell_metrics.json`, `models/gnn_metrics.json`, `models/nose_metrics.json`) and `test_app.py`. Full tables, training curves, and top/worst per-descriptor AUCs are in [`eval.md`](eval.md).
 
 | Metric | Measured | Target |
 |---|---:|---:|
-| Smell model (RandomForest, Random 80/20) macro ROC-AUC | **0.832** | ≥ 0.78 |
-| Smell model (OpenPOM MPNN GNN, Random 80/20) macro ROC-AUC | **0.874** | ≥ 0.78 |
-| Smell model (Bemis-Murcko Scaffold 80/20): GNN vs. RF | **0.773** vs. 0.730 | — |
+| Smell model (RandomForest, Random 80/20) macro ROC-AUC | **0.8317** | ≥ 0.78 |
+| Smell model (OpenPOM MPNN GNN, Random 80/20) macro ROC-AUC | **0.8736** (`+0.0419`) | ≥ 0.78 |
+| Smell model (Bemis-Murcko Scaffold 80/20): GNN vs. RF | **0.7731** vs. 0.7299 | — |
 | Descriptors scored | 138 of 138 | 138 |
 | Nose held-out accuracy (240 sessions) | **96.7%** (232/240) | ≥ 95% |
+| `test_app.py` 20-sniff spot check (σ = 0.03) | **95.8%** (115/120) | ≥ 95% |
 | `sniff()` latency (local, 50 sniffs) | **~30 ms** mean, 44 ms max | < 300 ms |
 | Smell model fit (`train_seconds`, CPU RF / RTX 3050 GNN) | 35.2 s / 87.6 s | — |
-| Nose train (`train_seconds`) | 0.9 s | < 60 s |
+| Nose train (`train_seconds`) | 0.91 s | < 60 s |
 
 Nose accuracy by fixed noise σ (300 fresh sessions per sample per level):
 
@@ -166,14 +173,18 @@ smell-ai/
   data/curated_GS_LF_merged_4983.csv   downloaded, gitignored
   models/
     smell.joblib | descriptors.json | smell_metrics.json
+    smell_gnn.pt | gnn_metrics.json
     sensor_bank.json | nose.joblib | nose_metrics.json
-  logs/sniffs.jsonl                    runtime sniff log, gitignored
-  samples.json                         six samples, 37 molecules
-  requirements.txt
+  logs/sniffs.jsonl                     runtime sniff log, gitignored
+  samples.json                          six samples, 37 molecules
+  requirements.txt                      core CPU dependencies
+  requirements-gpu.txt                  optional PyTorch CUDA for GNN training
   .streamlit/config.toml                light Y2K theme
   Dockerfile / .dockerignore            self-contained deployment
-  PROJECT_SKETCH.md                     architecture sketch and module map
-  smell_model.py                        train/serve the 138-descriptor model
+  PROJECT_SKETCH.md                     architecture sketch and CPU vs GPU comparison
+  eval.md                               full measured evaluation numerals
+  smell_model.py                        train/serve CPU RandomForest (138 descriptors)
+  train_gnn.py                          train/serve GPU OpenPOM MPNN + scaffold split
   sensor.py                             simulated 8-channel nose
   train_nose.py                         generate sessions, train nose
   pipeline.py                           load_all(), sniff(), describe()
@@ -230,6 +241,7 @@ The simulator's noise curve is a reminder that real sensors drift and respond to
 
 ## Data, documentation, and credit
 
+- Evaluations: [`eval.md`](eval.md)
 - Architecture sketch: [`PROJECT_SKETCH.md`](PROJECT_SKETCH.md)
 - Specifications and guides: [`docs/PRD.md`](docs/PRD.md), [`docs/TRD.md`](docs/TRD.md), [`docs/BACKEND_SCHEMA.md`](docs/BACKEND_SCHEMA.md), [`docs/ALGORITHMS.md`](docs/ALGORITHMS.md), [`docs/APP_FLOW.md`](docs/APP_FLOW.md), [`docs/WEB_APP.md`](docs/WEB_APP.md), [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)
 - Dataset: `curated_GS_LF_merged_4983.csv` from the [OpenPOM repository](https://github.com/BioMachineLearning/openpom), derived from Lee et al., *Science* (2023), "A principal odor map unifies diverse tasks in olfactory perception." Check the OpenPOM repository for dataset licensing before redistribution.
