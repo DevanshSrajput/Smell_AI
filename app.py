@@ -1029,7 +1029,7 @@ HONESTY_DOC = '''## What is real
 
 - The **nose** is simulated. Its eight channels come from RDKit molecular properties, a seeded sensor bank, volatility, saturation, humidity, drift, and Gaussian noise. There is no gas sensor.
 - The **nose accuracy** is optimistic by construction: training and test sessions come from the same simulator. High accuracy shows the pipeline works; it does not estimate accuracy on real hardware.
-- The **noise curve** is the honest part. Accuracy falls from 98.7% at σ=0.03 to 41.9% at σ=0.30.
+- The **noise curve** is the honest part: accuracy falls sharply as σ rises. The current curve is on the Model Metrics tab.
 
 ## What the descriptor scores mean
 
