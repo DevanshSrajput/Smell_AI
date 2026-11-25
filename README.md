@@ -45,7 +45,7 @@ Python 3.10–3.12, CPU only. `requirements.txt` is deliberately small: RDKit, s
 
 ## Web app (SMELL//OS)
 
-`app.py` is a Cybercore-themed Streamlit console with eight tabs:
+`app.py` is a minimal light Y2K Streamlit console with eight tabs:
 
 | Tab | What it does |
 |---|---|
@@ -168,16 +168,17 @@ smell-ai/
   logs/sniffs.jsonl                    runtime sniff log, gitignored
   samples.json                         six samples, 37 molecules
   requirements.txt
-  .streamlit/config.toml                Cybercore theme
+  .streamlit/config.toml                light Y2K theme
   Dockerfile / .dockerignore            self-contained deployment
-  smell_model.py                       train/serve the 138-descriptor model
-  sensor.py                            simulated 8-channel nose
-  train_nose.py                        generate sessions, train nose
-  pipeline.py                          load_all(), sniff(), describe()
-  app.py                               Cybercore Streamlit UI (8 tabs)
-  test_app.py                          7-check headless suite
-  docs/                                PRD, TRD, APP_FLOW, BACKEND_SCHEMA, ALGORITHMS,
-                                       DEPLOYMENT, WEB_APP
+  PROJECT_SKETCH.md                     architecture sketch and module map
+  smell_model.py                        train/serve the 138-descriptor model
+  sensor.py                             simulated 8-channel nose
+  train_nose.py                         generate sessions, train nose
+  pipeline.py                           load_all(), sniff(), describe()
+  app.py                                light Y2K Streamlit UI (8 tabs)
+  test_app.py                           7-check headless suite
+  docs/                                 PRD, TRD, APP_FLOW, BACKEND_SCHEMA, ALGORITHMS,
+                                        DEPLOYMENT, WEB_APP
 ```
 
 `sniff()` appends one JSON line per sniff to `logs/sniffs.jsonl` with an ISO timestamp by default; batch and sweep calls pass `log=False`. There is no database.
@@ -225,8 +226,10 @@ The simulator's noise curve is a reminder that real sensors drift and respond to
 
 OpenPOM's message-passing neural network reports a higher ROC-AUC in its authors' tests (about 0.89) but needs PyTorch, DeepChem, and ideally a GPU. This project intentionally does not install those. The upgrade path is to keep the same `predict_proba(model, smiles) -> (n, 138)` signature and swap the implementation; `pipeline.py`, `app.py`, and the tests would not change.
 
-## Data and credit
+## Data, documentation, and credit
 
+- Architecture sketch: [`PROJECT_SKETCH.md`](PROJECT_SKETCH.md)
+- Specifications and guides: [`docs/PRD.md`](docs/PRD.md), [`docs/TRD.md`](docs/TRD.md), [`docs/BACKEND_SCHEMA.md`](docs/BACKEND_SCHEMA.md), [`docs/ALGORITHMS.md`](docs/ALGORITHMS.md), [`docs/APP_FLOW.md`](docs/APP_FLOW.md), [`docs/WEB_APP.md`](docs/WEB_APP.md), [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)
 - Dataset: `curated_GS_LF_merged_4983.csv` from the [OpenPOM repository](https://github.com/BioMachineLearning/openpom), derived from Lee et al., *Science* (2023), "A principal odor map unifies diverse tasks in olfactory perception." Check the OpenPOM repository for dataset licensing before redistribution.
 - Descriptor labels are the 138 OpenPOM odor descriptors.
 - The six sample recipes are illustrative aroma compositions, not measured formulations. Weights are relative amounts only.
