@@ -43,6 +43,37 @@ python smell_model.py --csv path/to/curated_GS_LF_merged_4983.csv
 
 Python 3.10–3.12, CPU only. `requirements.txt` is deliberately small: RDKit, scikit-learn, pandas, numpy, joblib, Streamlit, requests.
 
+## Web app (SMELL//OS)
+
+`app.py` is a Cybercore-themed Streamlit console with eight tabs:
+
+| Tab | What it does |
+|---|---|
+| **Sniff Lab** | Pick a smell, sniff, and read the sensor array, nose guess, probabilities, top descriptors, molecules, and a downloadable JSON trace. |
+| **Batch Arena** | Repeated sniffs across all six samples, with accuracy, confidence, a confusion matrix, and CSV export. |
+| **Molecule Lab** | Analyze one SMILES: top descriptors, eight sensor properties, and a nose-resemblance chart. |
+| **Sensor Sweep** | Sweep noise or humidity and plot accuracy and confidence degradation. |
+| **Model Metrics** | Measured smell AUC, per-descriptor AUC, nose confusion matrix, noise curve, and seeds. |
+| **Sample Library** | The six compositions, molecule properties, weights, and descriptor profiles. |
+| **Sniff Log** | The last 500 sniffs from `logs/sniffs.jsonl`, filterable and downloadable. |
+| **Documentation** | Ten documentation tabs rendered from `README.md` and `docs/`. |
+
+Global controls live in the sidebar: sample, noise, humidity, and seed. A fixed seed reproduces a sniff; a blank seed gives a fresh reading. Batch and sweep runs do not write to the sniff log.
+
+### Deploying
+
+Local:
+
+```powershell
+.venv\Scripts\python.exe -m streamlit run app.py
+```
+
+The app opens at `http://localhost:8501`.
+
+Streamlit Community Cloud: push the repository, set the main file to `app.py`, choose Python 3.12, and add no secrets. Model joblib files are gitignored and too large for a normal repository, so the app detects missing artifacts and offers an **INITIALIZE MODELS** button that downloads the OpenPOM CSV and trains both models in the runtime. First boot takes about one to three minutes. Container storage is ephemeral, so a restart may retrain.
+
+A `Dockerfile` is included for a self-contained image that trains at build time. Full instructions, memory notes, and health checks are in [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md). The tab-by-tab user guide is in [`docs/WEB_APP.md`](docs/WEB_APP.md).
+
 ## How it works
 
 ```
@@ -137,16 +168,19 @@ smell-ai/
   logs/sniffs.jsonl                    runtime sniff log, gitignored
   samples.json                         six samples, 37 molecules
   requirements.txt
+  .streamlit/config.toml                Cybercore theme
+  Dockerfile / .dockerignore            self-contained deployment
   smell_model.py                       train/serve the 138-descriptor model
   sensor.py                            simulated 8-channel nose
   train_nose.py                        generate sessions, train nose
   pipeline.py                          load_all(), sniff(), describe()
-  app.py                               Streamlit UI
+  app.py                               Cybercore Streamlit UI (8 tabs)
   test_app.py                          7-check headless suite
-  docs/                                PRD, TRD, APP_FLOW, BACKEND_SCHEMA, ALGORITHMS
+  docs/                                PRD, TRD, APP_FLOW, BACKEND_SCHEMA, ALGORITHMS,
+                                       DEPLOYMENT, WEB_APP
 ```
 
-`sniff()` appends one JSON line per sniff to `logs/sniffs.jsonl` with an ISO timestamp. There is no database.
+`sniff()` appends one JSON line per sniff to `logs/sniffs.jsonl` with an ISO timestamp by default; batch and sweep calls pass `log=False`. There is no database.
 
 ## Tests
 
