@@ -65,7 +65,7 @@ def require_models() -> None:
     lines = "\n".join(f"  {rel}  (run: {REQUIRED_FILES[rel]})" for rel in missing)
     raise FileNotFoundError(
         f"Missing model files:\n{lines}\n\nTrain the models first:\n"
-        "  python smell_model.py\n  python train_nose.py"
+        "  python src/smell_model.py\n  python src/train_nose.py"
     )
 
 
@@ -105,7 +105,7 @@ def load_all() -> Context:
     nose_classes = [str(c) for c in nose.classes_]
     if set(nose_classes) != set(samples):
         raise ValueError(
-            "Nose classes do not match samples.json; rerun: python train_nose.py"
+            "Nose classes do not match data/samples.json; rerun: python src/train_nose.py"
         )
     smell, descriptors = smell_model.load_model()
     descriptor_data = json.loads(

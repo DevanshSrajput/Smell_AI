@@ -9,9 +9,9 @@ Windows:
 ```powershell
 uv venv .venv --python 3.12 --seed
 .venv\Scripts\pip.exe install -r requirements.txt
-.venv\Scripts\python.exe smell_model.py
-.venv\Scripts\python.exe train_nose.py
-.venv\Scripts\python.exe test_app.py
+.venv\Scripts\python.exe src\smell_model.py
+.venv\Scripts\python.exe src\train_nose.py
+.venv\Scripts\python.exe tests\test_app.py
 .venv\Scripts\python.exe -m streamlit run app.py
 ```
 
@@ -20,9 +20,9 @@ macOS / Linux:
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
-python smell_model.py
-python train_nose.py
-python test_app.py
+python src/smell_model.py
+python src/train_nose.py
+python tests/test_app.py
 streamlit run app.py
 ```
 
@@ -47,7 +47,7 @@ The app opens at `http://localhost:8501`.
 
 First initialization takes roughly one to three minutes on a laptop-class CPU. Streamlit Cloud container storage is ephemeral: after a restart the app may need to initialize again. This is acceptable for a demo, not for a latency-sensitive production service.
 
-If the host cannot download the CSV, run the training locally and host the model files somewhere the runtime can read, or build a Docker image (section 3). The dataset can also be supplied with `python smell_model.py --csv PATH`.
+If the host cannot download the CSV, run the training locally and host the model files somewhere the runtime can read, or build a Docker image (section 3). The dataset can also be supplied with `python src/smell_model.py --csv PATH`.
 
 ### Memory note
 

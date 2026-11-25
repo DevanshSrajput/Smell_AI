@@ -38,7 +38,7 @@ def check_model_files() -> int:
     print("[1/7] model files: FAIL")
     for rel in missing:
         print(f"  missing {rel}  (run: {pipeline.REQUIRED_FILES[rel]})")
-    print("Train the models first:\n  python smell_model.py\n  python train_nose.py")
+    print("Train the models first:\n  python src/smell_model.py\n  python src/train_nose.py")
     return 1
 
 

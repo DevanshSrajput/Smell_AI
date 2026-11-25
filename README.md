@@ -44,7 +44,7 @@ streamlit run app.py
 The first `smell_model.py` run downloads the 4,983-molecule CSV from the [OpenPOM repository](https://github.com/BioMachineLearning/openpom) to `data/`. If that URL is unavailable, download the file yourself and run:
 
 ```bash
-python smell_model.py --csv path/to/curated_GS_LF_merged_4983.csv
+python src/smell_model.py --csv path/to/curated_GS_LF_merged_4983.csv
 ```
 
 Python 3.10–3.12, CPU only. `requirements.txt` is deliberately small: RDKit, scikit-learn, pandas, numpy, joblib, Streamlit, requests.
@@ -122,7 +122,7 @@ All numbers below come from the committed metrics JSON files (`models/smell_metr
 | Smell model (Bemis-Murcko Scaffold 80/20): GNN vs. RF | **0.7731** vs. 0.7299 | — |
 | Descriptors scored | 138 of 138 | 138 |
 | Nose held-out accuracy (240 sessions) | **96.7%** (232/240) | ≥ 95% |
-| `test_app.py` 20-sniff spot check (σ = 0.03) | **95.8%** (115/120) | ≥ 95% |
+| `tests/test_app.py` 20-sniff spot check (σ = 0.03) | **95.8%** (115/120) | ≥ 95% |
 | `sniff()` latency (local, 50 sniffs) | **~30 ms** mean, 44 ms max | < 300 ms |
 | Smell model fit (`train_seconds`, CPU RF / RTX 3050 GNN) | 35.2 s / 87.6 s | — |
 | Nose train (`train_seconds`) | 0.91 s | < 60 s |
@@ -199,10 +199,10 @@ smell-ai/
 
 ## Tests
 
-`python test_app.py` runs seven checks:
+`python tests/test_app.py` runs seven checks:
 
 1. All model files exist; otherwise it prints the command that creates each missing file.
-2. Every SMILES in `samples.json` parses in RDKit.
+2. Every SMILES in `data/samples.json` parses in RDKit.
 3. `sniff()` returns the documented keys for all six samples.
 4. Nose accuracy over 20 sniffs per sample at noise 0.03: at least 5 of 6 samples must reach 95%, and overall accuracy must be at least 95%.
 5. Descriptor sanity: each sample's top 5 must contain at least one expected term (mint/cooling/herbal, citrus/lemon/fresh/terpenic, and so on). Expected names are filtered against `descriptors.json`; an empty expected set is a failure.
@@ -253,8 +253,8 @@ The simulator's noise curve is a reminder that real sensors drift and respond to
 
 | Symptom | Fix |
 |---|---|
-| `Missing model files` in the app | Run `python smell_model.py` and `python train_nose.py`. |
-| Dataset download fails | Download the CSV and run `python smell_model.py --csv PATH`. |
+| `Missing model files` in the app | Run `python src/smell_model.py` and `python src/train_nose.py`. |
+| Dataset download fails | Download the CSV and run `python src/smell_model.py --csv PATH`. |
 | RDKit install fails | Use the PyPI wheels (no compiler needed) or a conda environment; Python 3.10–3.12. |
 | Nose looks wrong at high noise | Expected. Move the noise slider back toward 0.03; the degradation curve is in the metrics. |
 | Want a repeatable sniff | Enter an integer seed in the sidebar; blank means a fresh reading each press. |

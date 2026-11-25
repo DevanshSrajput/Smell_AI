@@ -331,7 +331,7 @@ def _bootstrap_screen() -> None:
                     "Dataset download failed. Check outbound network access, or train "
                     "locally and mount the models/ directory."
                 )
-                st.code("python smell_model.py\npython train_nose.py")
+                st.code("python src/smell_model.py\npython src/train_nose.py")
                 return
             except Exception as exc:
                 status.update(label="Initialization failed", state="error")
@@ -343,7 +343,7 @@ def _bootstrap_screen() -> None:
 
     st.divider()
     st.caption(
-        "Alternative: run `python smell_model.py` and `python train_nose.py` locally, "
+        "Alternative: run `python src/smell_model.py` and `python src/train_nose.py` locally, "
         "then deploy with the models present."
     )
 

@@ -3,24 +3,27 @@
 ## Project Overview
 Local Python + Streamlit app joining a smell model (SMILES -> 138 OpenPOM odor descriptors via RandomForest) with a simulated 8-channel electronic nose (8 RDKit properties -> 6 samples). Runs on laptop CPU; no GPU, no hardware, no API keys.
 
-## File Layout (`TRD.md` §4)
+## File Layout (`TRD.md` §4, organized)
 ```
 smell-ai/
-  data/curated_GS_LF_merged_4983.csv   # downloaded, gitignored
-  models/                              # *.joblib gitignored; *.json committed
+  data/samples.json                    # tracked; *.csv downloaded & gitignored
+  models/                              # *.joblib & *.pt gitignored; *.json committed
     smell.joblib | descriptors.json | smell_metrics.json
+    smell_gnn.pt | gnn_metrics.json
     sensor_bank.json | nose.joblib | nose_metrics.json
   logs/sniffs.jsonl                    # runtime sniff log, gitignored
-  samples.json, requirements.txt, README.md, docs/
-  smell_model.py, sensor.py, train_nose.py, pipeline.py, app.py, test_app.py
+  src/                                 # smell_model.py, train_gnn.py, sensor.py, train_nose.py, pipeline.py
+  tests/test_app.py                    # 7-check headless suite
+  docs/                                # specs, PROJECT_SKETCH.md, eval.md
+  app.py, requirements.txt, requirements-gpu.txt, Dockerfile, README.md
 ```
 
 ## Run Commands (`APP_FLOW.md` §1)
 Windows `.venv` note: execute exclusively via `.venv\Scripts\python.exe` and `.venv\Scripts\pip.exe` (never global Python/pip).
 1. `uv venv .venv --python 3.12 --seed && .venv\Scripts\pip.exe install -r requirements.txt`
-2. `.venv\Scripts\python.exe smell_model.py` (downloads OpenPOM CSV, trains, saves `smell.joblib`)
-3. `.venv\Scripts\python.exe train_nose.py` (trains nose, saves `nose.joblib` & metrics)
-4. `.venv\Scripts\python.exe test_app.py` (7-check headless suite, exits 0)
+2. `.venv\Scripts\python.exe src\smell_model.py` (downloads OpenPOM CSV, trains, saves `smell.joblib`)
+3. `.venv\Scripts\python.exe src\train_nose.py` (trains nose, saves `nose.joblib` & metrics)
+4. `.venv\Scripts\python.exe tests\test_app.py` (7-check headless suite, exits 0)
 5. `.venv\Scripts\python.exe -m streamlit run app.py`
 
 ## Ground Rules

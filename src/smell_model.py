@@ -41,7 +41,7 @@ def _download_csv(dest: Path) -> None:
             f"Download failed ({exc}).\n"
             f"URL: {DATA_URL}\n"
             f"Target: {dest}\n"
-            f"Provide a local file via: python smell_model.py --csv PATH",
+            f"Provide a local file via: python src/smell_model.py --csv PATH",
             file=sys.stderr,
         )
         sys.exit(1)
