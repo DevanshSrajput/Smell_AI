@@ -17,16 +17,16 @@ Windows (PowerShell):
 uv venv .venv --python 3.12 --seed
 .venv\Scripts\pip.exe install -r requirements.txt
 
-.venv\Scripts\python.exe smell_model.py   # downloads OpenPOM CSV, trains CPU RF baseline
-.venv\Scripts\python.exe train_nose.py    # trains the simulated nose, saves metrics
-.venv\Scripts\python.exe test_app.py      # 7-check headless suite, exits 0
+.venv\Scripts\python.exe src\smell_model.py   # downloads OpenPOM CSV, trains CPU RF baseline
+.venv\Scripts\python.exe src\train_nose.py    # trains the simulated nose, saves metrics
+.venv\Scripts\python.exe tests\test_app.py    # 7-check headless suite, exits 0
 .venv\Scripts\python.exe -m streamlit run app.py
 ```
 
 Optional GPU GNN training (requires PyTorch CUDA, e.g. `requirements-gpu.txt`):
 
 ```powershell
-.venv\Scripts\python.exe train_gnn.py     # trains OpenPOM MPNN on CUDA + scaffold split
+.venv\Scripts\python.exe src\train_gnn.py     # trains OpenPOM MPNN on CUDA + scaffold split
 ```
 
 macOS / Linux:
@@ -35,9 +35,9 @@ macOS / Linux:
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
-python smell_model.py
-python train_nose.py
-python test_app.py
+python src/smell_model.py
+python src/train_nose.py
+python tests/test_app.py
 streamlit run app.py
 ```
 
@@ -113,7 +113,7 @@ The nose is a 200-tree RandomForest on the raw 8-vector. Training data: 200 sess
 
 ## Measured results
 
-All numbers below come from the committed metrics JSON files (`models/smell_metrics.json`, `models/gnn_metrics.json`, `models/nose_metrics.json`) and `test_app.py`. Full tables, training curves, and top/worst per-descriptor AUCs are in [`eval.md`](eval.md).
+All numbers below come from the committed metrics JSON files (`models/smell_metrics.json`, `models/gnn_metrics.json`, `models/nose_metrics.json`) and `tests/test_app.py`. Full tables, training curves, and top/worst per-descriptor AUCs are in [`docs/eval.md`](docs/eval.md).
 
 | Metric | Measured | Target |
 |---|---:|---:|
@@ -170,28 +170,29 @@ The smell model uses a random split, not a scaffold split. Its 0.832 macro ROC-A
 
 ```
 smell-ai/
-  data/curated_GS_LF_merged_4983.csv   downloaded, gitignored
+  src/
+    smell_model.py                      train/serve CPU RandomForest (138 descriptors)
+    train_gnn.py                        train/serve GPU OpenPOM MPNN + scaffold split
+    sensor.py                           simulated 8-channel nose
+    train_nose.py                       generate sessions, train nose
+    pipeline.py                         load_all(), sniff(), describe()
+  tests/
+    test_app.py                         7-check headless suite
+  data/
+    samples.json                        six samples, 37 molecules
+    curated_GS_LF_merged_4983.csv       downloaded, gitignored
   models/
     smell.joblib | descriptors.json | smell_metrics.json
     smell_gnn.pt | gnn_metrics.json
     sensor_bank.json | nose.joblib | nose_metrics.json
+  docs/                                 PRD, TRD, APP_FLOW, BACKEND_SCHEMA, ALGORITHMS,
+                                        DEPLOYMENT, WEB_APP, PROJECT_SKETCH, eval
   logs/sniffs.jsonl                     runtime sniff log, gitignored
-  samples.json                          six samples, 37 molecules
-  requirements.txt                      core CPU dependencies
-  requirements-gpu.txt                  optional PyTorch CUDA for GNN training
   .streamlit/config.toml                light Y2K theme
   Dockerfile / .dockerignore            self-contained deployment
-  PROJECT_SKETCH.md                     architecture sketch and CPU vs GPU comparison
-  eval.md                               full measured evaluation numerals
-  smell_model.py                        train/serve CPU RandomForest (138 descriptors)
-  train_gnn.py                          train/serve GPU OpenPOM MPNN + scaffold split
-  sensor.py                             simulated 8-channel nose
-  train_nose.py                         generate sessions, train nose
-  pipeline.py                           load_all(), sniff(), describe()
+  requirements.txt                      core CPU dependencies
+  requirements-gpu.txt                  optional PyTorch CUDA for GNN training
   app.py                                light Y2K Streamlit UI (8 tabs)
-  test_app.py                           7-check headless suite
-  docs/                                 PRD, TRD, APP_FLOW, BACKEND_SCHEMA, ALGORITHMS,
-                                        DEPLOYMENT, WEB_APP
 ```
 
 `sniff()` appends one JSON line per sniff to `logs/sniffs.jsonl` with an ISO timestamp by default; batch and sweep calls pass `log=False`. There is no database.
@@ -241,8 +242,8 @@ The simulator's noise curve is a reminder that real sensors drift and respond to
 
 ## Data, documentation, and credit
 
-- Evaluations: [`eval.md`](eval.md)
-- Architecture sketch: [`PROJECT_SKETCH.md`](PROJECT_SKETCH.md)
+- Evaluations: [`docs/eval.md`](docs/eval.md)
+- Architecture sketch: [`docs/PROJECT_SKETCH.md`](docs/PROJECT_SKETCH.md)
 - Specifications and guides: [`docs/PRD.md`](docs/PRD.md), [`docs/TRD.md`](docs/TRD.md), [`docs/BACKEND_SCHEMA.md`](docs/BACKEND_SCHEMA.md), [`docs/ALGORITHMS.md`](docs/ALGORITHMS.md), [`docs/APP_FLOW.md`](docs/APP_FLOW.md), [`docs/WEB_APP.md`](docs/WEB_APP.md), [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)
 - Dataset: `curated_GS_LF_merged_4983.csv` from the [OpenPOM repository](https://github.com/BioMachineLearning/openpom), derived from Lee et al., *Science* (2023), "A principal odor map unifies diverse tasks in olfactory perception." Check the OpenPOM repository for dataset licensing before redistribution.
 - Descriptor labels are the 138 OpenPOM odor descriptors.

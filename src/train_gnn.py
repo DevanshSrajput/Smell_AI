@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import json
+import sys
 import time
 from collections import defaultdict
 from pathlib import Path
 from typing import Any
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import numpy as np
 import torch
@@ -19,7 +22,7 @@ from sklearn.model_selection import train_test_split
 
 import smell_model
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent
 MODELS_DIR = ROOT / "models"
 GNN_PATH = MODELS_DIR / "smell_gnn.pt"
 GNN_METRICS_PATH = MODELS_DIR / "gnn_metrics.json"

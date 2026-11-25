@@ -3,10 +3,13 @@
 from __future__ import annotations
 
 import json
+import sys
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import joblib
 import numpy as np
@@ -14,18 +17,18 @@ import numpy as np
 import sensor
 import smell_model
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent
 MODELS_DIR = ROOT / "models"
-SAMPLES_PATH = ROOT / "samples.json"
+SAMPLES_PATH = ROOT / "data" / "samples.json"
 LOG_PATH = ROOT / "logs" / "sniffs.jsonl"
 
 REQUIRED_FILES = {
-    "models/smell.joblib": "python smell_model.py",
-    "models/descriptors.json": "python smell_model.py",
-    "models/smell_metrics.json": "python smell_model.py",
-    "models/sensor_bank.json": "python train_nose.py",
-    "models/nose.joblib": "python train_nose.py",
-    "models/nose_metrics.json": "python train_nose.py",
+    "models/smell.joblib": "python src/smell_model.py",
+    "models/descriptors.json": "python src/smell_model.py",
+    "models/smell_metrics.json": "python src/smell_model.py",
+    "models/sensor_bank.json": "python src/train_nose.py",
+    "models/nose.joblib": "python src/train_nose.py",
+    "models/nose_metrics.json": "python src/train_nose.py",
 }
 
 

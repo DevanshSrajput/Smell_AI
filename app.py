@@ -4,8 +4,11 @@ from __future__ import annotations
 
 import json
 import platform
+import sys
 from collections import deque
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
 
 import numpy as np
 import pandas as pd
@@ -19,7 +22,7 @@ import train_nose
 ROOT = Path(__file__).resolve().parent
 MODELS_DIR = ROOT / "models"
 DOCS_DIR = ROOT / "docs"
-SAMPLES_PATH = ROOT / "samples.json"
+SAMPLES_PATH = ROOT / "data" / "samples.json"
 LOG_PATH = pipeline.LOG_PATH
 
 st.set_page_config(
@@ -1153,8 +1156,8 @@ def _documentation() -> None:
     docs = {
         "GUIDE": DOCS_DIR / "WEB_APP.md",
         "QUICKSTART": ROOT / "README.md",
-        "EVALUATIONS": ROOT / "eval.md",
-        "SKETCH": ROOT / "PROJECT_SKETCH.md",
+        "EVALUATIONS": DOCS_DIR / "eval.md",
+        "SKETCH": DOCS_DIR / "PROJECT_SKETCH.md",
         "ARCHITECTURE": DOCS_DIR / "TRD.md",
         "ALGORITHMS": DOCS_DIR / "ALGORITHMS.md",
         "SCHEMAS": DOCS_DIR / "BACKEND_SCHEMA.md",

@@ -1,5 +1,5 @@
 .venv/
-data/
+data/*.csv
 models/*.joblib
 models/*.pt
 __pycache__/

@@ -4,7 +4,10 @@ from __future__ import annotations
 
 import json
 import time
+import sys
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import joblib
 import numpy as np
@@ -14,9 +17,9 @@ from sklearn.model_selection import train_test_split
 
 import sensor
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent
 MODELS_DIR = ROOT / "models"
-SAMPLES_PATH = ROOT / "samples.json"
+SAMPLES_PATH = ROOT / "data" / "samples.json"
 N_SESSIONS = 200
 NOISE_LEVELS = (0.03, 0.10, 0.20, 0.30)
 SEED = 1

@@ -20,7 +20,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPClassifier
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent
 # Approved URL (TRD.md §3.1 omitted /curated_datasets/ and returns 404).
 DATA_URL = (
     "https://raw.githubusercontent.com/BioMachineLearning/openpom/"

@@ -12,10 +12,10 @@ import numpy as np
 from rdkit import Chem
 from rdkit.Chem import Crippen, Descriptors, rdMolDescriptors
 
-ROOT = Path(__file__).resolve().parent
+ROOT = Path(__file__).resolve().parent.parent
 MODELS_DIR = ROOT / "models"
 BANK_PATH = MODELS_DIR / "sensor_bank.json"
-SAMPLES_PATH = ROOT / "samples.json"
+SAMPLES_PATH = ROOT / "data" / "samples.json"
 DATASET_PATH = ROOT / "data" / "curated_GS_LF_merged_4983.csv"
 
 N_SENSORS = 8

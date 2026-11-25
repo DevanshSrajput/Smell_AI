@@ -139,9 +139,9 @@ Full numerical tables, confusion matrices, and per-descriptor AUCs are in [`eval
 python -m venv .venv
 .venv\Scripts\pip.exe install -r requirements.txt
 
-.venv\Scripts\python.exe smell_model.py
-.venv\Scripts\python.exe train_nose.py
-.venv\Scripts\python.exe test_app.py
+.venv\Scripts\python.exe src\smell_model.py
+.venv\Scripts\python.exe src\train_nose.py
+.venv\Scripts\python.exe tests\test_app.py
 .venv\Scripts\python.exe -m streamlit run app.py
 ```
 
@@ -150,9 +150,9 @@ python -m venv .venv
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 
-python smell_model.py
-python train_nose.py
-python test_app.py
+python src/smell_model.py
+python src/train_nose.py
+python tests/test_app.py
 streamlit run app.py
 ```
 
