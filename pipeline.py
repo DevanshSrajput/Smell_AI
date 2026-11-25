@@ -177,7 +177,9 @@ def sniff(
     noise: float = 0.03,
     humidity: float = 0.5,
     seed: int | None = None,
+    log: bool = True,
 ) -> dict:
+    """Run one simulated sniff; optionally append it to logs/sniffs.jsonl."""
     if sample_name not in ctx.samples:
         raise KeyError(f"Unknown sample {sample_name!r}; choose from {list(ctx.samples)}")
     rng = np.random.default_rng(seed)
@@ -205,7 +207,8 @@ def sniff(
         "description": describe(ctx, predicted, top_k=5),
         "molecules": ctx.samples[predicted].molecules,
     }
-    _log(result)
+    if log:
+        _log(result)
     return result
 
 
