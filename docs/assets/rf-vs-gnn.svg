@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 920 190" width="920" height="190">
+  <rect x="1" y="1" width="918" height="188" rx="16" fill="#ffffff" stroke="#d4dfee" stroke-width="1.5"/>
+  <text x="28" y="34" font-family="Consolas, monospace" font-size="12" fill="#0066ff">BENCHMARK // CPU RANDOM FOREST vs. GPU OPENPOM MPNN (4,983 MOLECULES, 138 DESCRIPTORS)</text>
+  <!-- Random 80/20 -->
+  <text x="28" y="68" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#162033">Random 80/20 Split</text>
+  <rect x="210" y="54" width="460" height="18" rx="9" fill="#eef3fa"/>
+  <rect x="210" y="54" width="382" height="18" rx="9" fill="#99c2ff"/>
+  <text x="682" y="68" font-family="Consolas, monospace" font-size="12" fill="#5c6f8a">RF: 0.8317 (CPU, 35.2 s)</text>
+
+  <rect x="210" y="80" width="460" height="18" rx="9" fill="#eef3fa"/>
+  <rect x="210" y="80" width="402" height="18" rx="9" fill="#0066ff"/>
+  <text x="682" y="94" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#0066ff">MPNN: 0.8736 (RTX 3050, +0.0419)</text>
+
+  <!-- Scaffold 80/20 -->
+  <text x="28" y="136" font-family="Segoe UI, Arial, sans-serif" font-size="13" font-weight="700" fill="#162033">Bemis-Murcko Scaffold</text>
+  <rect x="210" y="122" width="460" height="18" rx="9" fill="#eef3fa"/>
+  <rect x="210" y="122" width="335" height="18" rx="9" fill="#99c2ff"/>
+  <text x="682" y="136" font-family="Consolas, monospace" font-size="12" fill="#5c6f8a">RF: 0.7299</text>
+
+  <rect x="210" y="148" width="460" height="18" rx="9" fill="#eef3fa"/>
+  <rect x="210" y="148" width="356" height="18" rx="9" fill="#00a878"/>
+  <text x="682" y="162" font-family="Consolas, monospace" font-size="12" font-weight="700" fill="#00a878">MPNN: 0.7731 (+0.0432)</text>
+</svg>
