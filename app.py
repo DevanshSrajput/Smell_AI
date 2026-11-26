@@ -10,14 +10,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent / "src"))
 
-import numpy as np
-import pandas as pd
-import streamlit as st
+import numpy as np  # noqa: E402
+import pandas as pd  # noqa: E402
+import streamlit as st  # noqa: E402
 
-import pipeline
-import sensor
-import smell_model
-import train_nose
+import pipeline  # noqa: E402
+import sensor  # noqa: E402
+import smell_model  # noqa: E402
+import train_nose  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent
 MODELS_DIR = ROOT / "models"
