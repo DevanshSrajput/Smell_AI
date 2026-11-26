@@ -121,8 +121,8 @@ If the OpenPOM download is blocked, pass a local CSV: `python src/smell_model.py
 
 [`app.py`](app.py) uses a minimal light Y2K theme ([`.streamlit/config.toml`](.streamlit/config.toml)) with 8 tabs: **Sniff Lab**, **Batch Arena**, **Molecule Lab** (side-by-side RF vs. MPNN comparison), **Sensor Sweep**, **Model Metrics**, **Sample Library**, **Sniff Log**, and **Documentation**.
 
-- **Streamlit Community Cloud (CPU-only):** Set main file to `app.py` (Python 3.12). Streamlit Cloud runs on **CPU only**, so it serves the `RandomForest` baseline (`0.8317` AUC) + simulated nose; missing `models/*.joblib` files trigger a first-boot **INITIALIZE MODELS** button. For the GPU-trained OpenPOM MPNN (`0.8736` AUC), see [GitHub (`DevanshSrajput/Smell_AI`)](https://github.com/DevanshSrajput/Smell_AI) or deploy via Docker on [Hugging Face Spaces](https://huggingface.co/spaces).
-- **Docker / Hugging Face Spaces:** `docker build -t smell-ai . && docker run -p 8501:8501 smell-ai` (set `PORT=7860` on Hugging Face Spaces; see [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)).
+- **Streamlit Community Cloud (CPU-only):** Set main file to `app.py` (Python 3.12). Streamlit Cloud runs on **CPU only**, so it serves the `RandomForest` baseline (`0.8317` AUC) + simulated nose; missing `models/*.joblib` files trigger a first-boot **INITIALIZE MODELS** button. For the GPU-trained OpenPOM MPNN (`0.8736` AUC), see [GitHub (`DevanshSrajput/Smell_AI`)](https://github.com/DevanshSrajput/Smell_AI).
+- **Docker:** `docker build -t smell-ai . && docker run -p 8501:8501 smell-ai` (see [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)).
 
 ---
 

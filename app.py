@@ -14,10 +14,7 @@ import numpy as np  # noqa: E402
 import pandas as pd  # noqa: E402
 import streamlit as st  # noqa: E402
 
-import pipeline  # noqa: E402
-import sensor  # noqa: E402
-import smell_model  # noqa: E402
-import train_nose  # noqa: E402
+from src import pipeline, sensor, smell_model, train_nose  # noqa: E402
 
 ROOT = Path(__file__).resolve().parent
 MODELS_DIR = ROOT / "models"
@@ -1227,7 +1224,6 @@ def main() -> None:
         '<div class="footer">SMELL//OS · NOSE: SIMULATED · DATA: OpenPOM · '
         "Streamlit Cloud runs CPU-only (RandomForest). "
         '<a href="https://github.com/DevanshSrajput/Smell_AI" target="_blank">GitHub</a> · '
-        '<a href="https://huggingface.co/spaces" target="_blank">Hugging Face Spaces</a> · '
         "See Documentation → HONESTY.</div>",
         unsafe_allow_html=True,
     )
