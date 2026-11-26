@@ -125,7 +125,14 @@ def _eval_auc(
     return macro, per_auc
 
 
-def train(csv_path: str | None = None, seed: int = 42) -> dict:
+def train(
+    csv_path: str | None = None,
+    seed: int = 42,
+    n_estimators: int = 300,
+    max_depth: int | None = None,
+    min_samples_leaf: int = 1,
+    n_jobs: int = -1,
+) -> dict:
     """Train, evaluate on 20% held-out split, save model & metrics."""
     t_start = time.perf_counter()
     smiles, Y, label_cols = load_dataset(csv_path)
@@ -142,16 +149,16 @@ def train(csv_path: str | None = None, seed: int = 42) -> dict:
     )
 
     rf_params: dict[str, Any] = {
-        "n_estimators": 300,
-        "max_depth": None,
-        "min_samples_leaf": 1,
+        "n_estimators": n_estimators,
+        "max_depth": max_depth,
+        "min_samples_leaf": min_samples_leaf,
     }
     t_fit = time.perf_counter()
     clf: Any = RandomForestClassifier(
         n_estimators=rf_params["n_estimators"],
         max_depth=rf_params["max_depth"],
         min_samples_leaf=rf_params["min_samples_leaf"],
-        n_jobs=-1,
+        n_jobs=n_jobs,
         random_state=seed,
         class_weight="balanced_subsample",
     )

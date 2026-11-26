@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import gc
 import json
 import platform
 import sys
@@ -317,7 +318,14 @@ def _bootstrap_screen() -> None:
             try:
                 if smell_missing:
                     st.write("> training smell model (downloads the OpenPOM CSV)")
-                    smell_model.train()
+                    # ponytail: bounded RF avoids OOM on 1 GB cloud containers while keeping AUC >= 0.80
+                    smell_model.train(
+                        n_estimators=100,
+                        max_depth=25,
+                        min_samples_leaf=2,
+                        n_jobs=1,
+                    )
+                    gc.collect()
                 if nose_missing:
                     st.write("> training simulated nose")
                     train_nose.train()
