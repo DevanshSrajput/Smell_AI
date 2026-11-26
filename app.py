@@ -409,6 +409,12 @@ def _sidebar(ctx: pipeline.Context, metrics: dict) -> tuple[str, float, float, i
                     st.session_state.pop(key, None)
                 st.rerun()
         st.caption("SIMULATED NOSE — NOT HARDWARE")
+        if ctx.gnn_model is None:
+            st.info(
+                "Running on **CPU-only** (RandomForest baseline). "
+                "For the GPU-trained OpenPOM MPNN & full repo, see "
+                "[GitHub](https://github.com/DevanshSrajput/Smell_AI)."
+            )
     return picked, noise, humidity, seed, backend
 
 
@@ -1219,7 +1225,9 @@ def main() -> None:
 
     st.markdown(
         '<div class="footer">SMELL//OS · NOSE: SIMULATED · DATA: OpenPOM · '
-        "The eight channels are model-derived, not gas-sensor measurements. "
+        "Streamlit Cloud runs CPU-only (RandomForest). "
+        '<a href="https://github.com/DevanshSrajput/Smell_AI" target="_blank">GitHub</a> · '
+        '<a href="https://huggingface.co/spaces" target="_blank">Hugging Face Spaces</a> · '
         "See Documentation → HONESTY.</div>",
         unsafe_allow_html=True,
     )
